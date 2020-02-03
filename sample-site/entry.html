@@ -1,0 +1,34 @@
+<html>
+    <head>
+    <title>credit card entry</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+    </head>
+    <body>
+        <div id="head">
+            <h1>Credit Card Entry for {{.Name}}</h1>
+        </div>
+        <div id="desc">
+            <p>This site is for entering the credit card that will be used by
+            SlateBlueWeb to bill you for your hosting.</p>
+            <p>Click on the &quot;Update card&quot; button to get started.</p>
+            <p>
+            Thanks!
+            </p>
+        </div>
+        <div id="purpose">
+            <form action="/update" method="POST">
+                <script src="https://checkout.stripe.com/checkout.js"
+                    class="stripe-button"
+                    data-key="{{.StripePublic}}"
+                    data-name="Slate Blue Web"
+                    data-panel-label="Update Card Details"
+                    data-label="Update Card"
+                    data-allow-remember-me=false
+                    data-locale="auto"
+                    data-zip-code=true
+                ></script>
+            </form>
+        </div>
+    </body>
+</html>

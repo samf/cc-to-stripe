@@ -1,0 +1,20 @@
+html {
+    text-align: center;
+    background: #214761; /* dark slate blue */
+    color: #fffe7a; /* light yellow */
+    font-family: 'Helvetica Neue', Helvetica, sans-serif;
+}
+
+#head {
+    margin: 4ex auto 1ex;
+}
+
+#desc {
+    width: 60%;
+    margin: 2ex auto;
+    text-align: left;
+}
+
+#purpose {
+    margin: 2ex auto;
+}
