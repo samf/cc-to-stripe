@@ -9,19 +9,23 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/samf/cc-to-stripe/assets"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v2"
 )
 
 type (
+	appInfo struct {
+		Customers []string `envconfig:"customers"`
+	}
+
 	custInfo struct {
-		Hostname      string `yaml:"hostname"`
-		Path          string `yaml:"path"`
-		Name          string `yaml:"name"`
-		StripeCust    string `yaml:"cust_id"`
-		StripePrivate string `yaml:"stripe_secret"`
-		StripePublic  string `yaml:"stripe_public"`
+		Hostname      string `envconfig:"hostname"`
+		Path          string `envconfig:"path"`
+		Name          string `envconfig:"name"`
+		StripeCust    string `envconfig:"stripe_cust"`
+		StripePrivate string `envconfig:"stripe_private"`
+		StripePublic  string `envconfig:"stripe_public"`
 	}
 )
 
@@ -31,28 +35,24 @@ var (
 )
 
 func readCust() error {
-	var custList []custInfo
+	var (
+		ai appInfo
+		ci custInfo
+	)
 	cmap := make(map[string]custInfo)
-	rawconfigFile, err := assets.Assets.Open("config.yaml")
+
+	err := envconfig.Process("ccs", &ai)
 	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Fatal("opening config")
-		return err
-	}
-	defer rawconfigFile.Close()
-	rawconfig, err := ioutil.ReadAll(rawconfigFile)
-	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Fatal("reading config")
 		return err
 	}
 
-	err = yaml.Unmarshal(rawconfig, &custList)
-	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Fatal("parsing config")
-		return err
-	}
+	for _, cust := range ai.Customers {
+		err := envconfig.Process(cust, &ci)
+		if err != nil {
+			return err
+		}
 
-	for _, cust := range custList {
-		cmap[cust.Hostname] = cust
+		cmap[ci.Hostname] = ci
 	}
 
 	custMap = cmap
