@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"bitbucket.org/samf/cc-to-stripe/assets"
+	"github.com/samf/cc-to-stripe/assets"
 	log "github.com/sirupsen/logrus"
 	stripe "github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/client"
@@ -38,7 +38,7 @@ func stripeRouter() {
 		log.WithFields(log.Fields{"token": token}).Info("stripeToken")
 		params := &stripe.CustomerParams{
 			Source: &stripe.SourceParams{
-				Token: token,
+				Token: &token,
 			},
 		}
 

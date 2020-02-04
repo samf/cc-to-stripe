@@ -3,8 +3,9 @@
 package main
 
 import (
-	"bitbucket.org/samf/cc-to-stripe/assets"
 	"log"
+
+	"github.com/samf/cc-to-stripe/assets"
 
 	"github.com/shurcooL/vfsgen"
 )

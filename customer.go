@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	"bitbucket.org/samf/cc-to-stripe/assets"
+	"github.com/samf/cc-to-stripe/assets"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )

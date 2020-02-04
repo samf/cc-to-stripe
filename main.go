@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"os"
 
-	"bitbucket.org/samf/cc-to-stripe/assets"
+	"github.com/samf/cc-to-stripe/assets"
 	log "github.com/sirupsen/logrus"
 
 	"golang.org/x/crypto/acme/autocert"
