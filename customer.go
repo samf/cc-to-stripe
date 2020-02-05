@@ -14,20 +14,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type (
-	appInfo struct {
-		Customers []string `envconfig:"customers"`
-	}
-
-	custInfo struct {
-		Hostname      string `envconfig:"hostname"`
-		Path          string `envconfig:"path"`
-		Name          string `envconfig:"name"`
-		StripeCust    string `envconfig:"stripe_cust"`
-		StripePrivate string `envconfig:"stripe_private"`
-		StripePublic  string `envconfig:"stripe_public"`
-	}
-)
+type custInfo struct {
+	Hostname      string `envconfig:"hostname" required:"true"`
+	Path          string `envconfig:"path" required:"true"`
+	Name          string `envconfig:"name" required:"true"`
+	StripeCust    string `envconfig:"stripe_cust" required:"true"`
+	StripePrivate string `envconfig:"stripe_private" required:"true"`
+	StripePublic  string `envconfig:"stripe_public" required:"true"`
+}
 
 var (
 	custMap   map[string]custInfo
@@ -35,20 +29,13 @@ var (
 )
 
 func readCust() error {
-	var (
-		ai appInfo
-		ci custInfo
-	)
+	var ci custInfo
 	cmap := make(map[string]custInfo)
 
-	err := envconfig.Process("ccs", &ai)
-	if err != nil {
-		return err
-	}
-
-	for _, cust := range ai.Customers {
+	for _, cust := range config.Customers {
 		err := envconfig.Process(cust, &ci)
 		if err != nil {
+			envconfig.Usage(cust, &ci)
 			return err
 		}
 
@@ -62,8 +49,8 @@ func readCust() error {
 
 func reqToHost(r *http.Request) (*custInfo, error) {
 	host := r.Host
-	if host == "localhost"+*httpPort {
-		host = *localhost
+	if host == "localhost"+config.HTTPPort {
+		host = config.LocalhostOverride
 	}
 	cust, ok := custMap[host]
 	if !ok {

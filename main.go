@@ -4,31 +4,42 @@ package main
 
 import (
 	"crypto/tls"
-	"flag"
 	"io/ioutil"
 	"net/http"
 	"os"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/samf/cc-to-stripe/assets"
 	log "github.com/sirupsen/logrus"
 
 	"golang.org/x/crypto/acme/autocert"
 )
 
-var insecure = flag.Bool("i", false, "turn off security (http only)")
-var httpPort = flag.String("p", ":80", "port for http")
-var httpsPort = flag.String("P", ":443", "port for https")
-var cachedir = flag.String("C", "/autocert", "directory for autocert cache")
-var email = flag.String("email", "sam.falkner@gmail.com",
-	"email for letsencrypt")
-var localhost = flag.String("l",
-	"localhost", "host to use if localhost detected")
+type appConfig struct {
+	Customers []string `envconfig:"customers" required:"true"`
+
+	HTTPPort  string `envconfig:"http_port" default:":80"`
+	HTTPSPort string `envconfig:"https_port" default:":443"`
+	CacheDir  string `envconfig:"CACHEDIR" default:"/autocert"`
+	Email     string `required:"true"`
+
+	HttpOnly          bool   `split_words:"true"`
+	LocalhostOverride string `split_words:"true"`
+}
+
+var config appConfig
 
 var notFound, err500 http.HandlerFunc
 
 func main() {
 	log.WithFields(log.Fields{"argv": os.Args}).Info("start")
-	flag.Parse()
+
+	if err := envconfig.Process("ccs", &config); err != nil {
+		envconfig.Usage("css", &config)
+		log.WithFields(log.Fields{"error": err}).
+			Fatal("initial envconfig failed")
+		os.Exit(1)
+	}
 
 	if err := readCust(); err != nil {
 		log.WithFields(log.Fields{"error": err}).
@@ -38,34 +49,34 @@ func main() {
 
 	mainRouter()
 
-	if *insecure {
-		log.WithFields(log.Fields{"addr": *httpPort}).Info("insecure")
-		err := http.ListenAndServe(*httpPort, nil)
+	if config.HttpOnly {
+		log.WithFields(log.Fields{"addr": config.HTTPPort}).Info("insecure")
+		err := http.ListenAndServe(config.HTTPPort, nil)
 		log.WithFields(log.Fields{"error": err}).Fatal("http returned")
 	}
 
 	m := &autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
-		Cache:      autocert.DirCache(*cachedir),
+		Cache:      autocert.DirCache(config.CacheDir),
 		HostPolicy: custHostPolicy,
-		Email:      *email,
+		Email:      config.Email,
 	}
 
 	go func() {
 		handler := m.HTTPHandler(nil)
-		log.WithFields(log.Fields{"port": *httpPort}).
+		log.WithFields(log.Fields{"port": config.HTTPPort}).
 			Info("redirector starting")
-		err := http.ListenAndServe(*httpPort, handler)
+		err := http.ListenAndServe(config.HTTPPort, handler)
 		log.WithFields(log.Fields{"error": err}).Fatal("http redirect")
 	}()
 
 	s := &http.Server{
-		Addr: *httpsPort,
+		Addr: config.HTTPSPort,
 		TLSConfig: &tls.Config{
 			GetCertificate: m.GetCertificate,
 		},
 	}
-	log.WithFields(log.Fields{"port": *httpsPort}).Info("secure")
+	log.WithFields(log.Fields{"port": config.HTTPSPort}).Info("secure")
 	err := s.ListenAndServeTLS("", "")
 	log.WithFields(log.Fields{"error": err}).Fatal("https returned")
 }
