@@ -16,15 +16,17 @@ import (
 )
 
 type appConfig struct {
-	Customers []string `envconfig:"customers" required:"true"`
+	Customers     []string `envconfig:"customers" required:"true" desc:"short names for your customers"`
+	StripePrivate string   `envconfig:"stripe_private" required:"true" desc:"stripe private key"`
+	StripePublic  string   `envconfig:"stripe_public" required:"true" desc:"stripe public key"`
 
 	HTTPPort  string `envconfig:"http_port" default:":80"`
 	HTTPSPort string `envconfig:"https_port" default:":443"`
-	CacheDir  string `envconfig:"CACHEDIR" default:"/autocert"`
-	Email     string `required:"true"`
+	CacheDir  string `envconfig:"CACHEDIR" default:"/autocert" desc:"directory where certificates are cached"`
+	Email     string `required:"true" desc:"needed for automatic certificate fetching"`
 
-	HttpOnly          bool   `split_words:"true"`
-	LocalhostOverride string `split_words:"true"`
+	HttpOnly          bool   `split_words:"true" desc:"only use http (for development only)"`
+	LocalhostOverride string `split_words:"true" desc:"map localhost to a hostname (for dev only)"`
 }
 
 var config appConfig

@@ -1,0 +1,28 @@
+FROM scratch
+
+ENV CCS_CUSTOMERS pancake,burger,test
+ENV CCS_EMAIL foo@example.com
+
+ENV PANCAKE_HOSTNAME pancakes.yourdomain.com
+ENV PANCAKE_PATH syrup
+ENV PANCAKE_NAME "Joe's Pancake Shack"
+ENV PANCAKE_STRIPE_CUST baz
+
+ENV BURGER_HOSTNAME burgerbarn.yourdomain.com
+ENV BURGER_PATH ketchup
+ENV BURGER_NAME "Bob's Burger Barn"
+ENV BURGER_STRIPE_CUST baz
+
+ENV TEST_HOSTNAME leakygas.yourdomain.com
+ENV TEST_PATH nozzle
+ENV TEST_NAME "Leaky's Gas Station"
+ENV TEST_STRIPE_CUST quux
+ENV TEST_STRIPE_PRIVATE sk_test_xyz789
+ENV TEST_STRIPE_PUBLIC pk_test_xyz789
+
+COPY cc-to-stripe /go/bin/cc-to-stripe
+WORKDIR /go/home
+EXPOSE 80 443
+VOLUME ["/autocert"]
+
+ENTRYPOINT ["/go/bin/cc-to-stripe"]

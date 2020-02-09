@@ -15,12 +15,12 @@ import (
 )
 
 type custInfo struct {
-	Hostname      string `envconfig:"hostname" required:"true"`
-	Path          string `envconfig:"path" required:"true"`
-	Name          string `envconfig:"name" required:"true"`
-	StripeCust    string `envconfig:"stripe_cust" required:"true"`
-	StripePrivate string `envconfig:"stripe_private" required:"true"`
-	StripePublic  string `envconfig:"stripe_public" required:"true"`
+	Hostname      string `envconfig:"hostname" required:"true" desc:"hostname your customer will use"`
+	Path          string `envconfig:"path" required:"true" desc:"path part of URL for customer"`
+	Name          string `envconfig:"name" required:"true" desc="full name of customer"`
+	StripeCust    string `envconfig:"stripe_cust" required:"true" desc:"stripe ID for customer"`
+	StripePrivate string `envconfig:"stripe_private" desc:"override global private key"`
+	StripePublic  string `envconfig:"stripe_public" desc:"override global public key"`
 }
 
 var (
@@ -37,6 +37,13 @@ func readCust() error {
 		if err != nil {
 			envconfig.Usage(cust, &ci)
 			return err
+		}
+
+		if ci.StripePrivate == "" {
+			ci.StripePrivate = config.StripePrivate
+		}
+		if ci.StripePublic == "" {
+			ci.StripePublic = config.StripePublic
 		}
 
 		cmap[ci.Hostname] = ci
