@@ -4,7 +4,7 @@
 
 ## Run in production
 
-`# docker run -d -p 443:443 -p 80:80 -v /autocert:/autocert samfalkner/cc-to-stripe [ -i (or any other CLI opts) ]`
+`# docker run -d --restart unless-stopped -p 443:443 -p 80:80 -v /autocert:/autocert samfalkner/cc-to-stripe [ -i (or any other CLI opts) ]`
 
 ## DigitalOcean Instructions
 
